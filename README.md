@@ -84,7 +84,7 @@ womens-basketball-game-predictor/
 ## Team and Communication
 
 -   **Team members:** Stephonie Cole
--   **Initial responsibilities:** Indiviual project
+-   **Initial responsibilities:** Individual project
 ## Project Timeline
 
   -----------------------------------------------------------------------

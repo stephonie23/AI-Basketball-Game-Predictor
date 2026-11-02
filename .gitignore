@@ -1,0 +1,17 @@
+# Python virtual environments
+.venv/
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+
+# Dataset files
+data/raw/
+data/processed/
+
+# Mac system files
+.DS_Store
+
+# VS Code local settings
+.vscode/

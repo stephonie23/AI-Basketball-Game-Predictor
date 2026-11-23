@@ -1,0 +1,38 @@
+{
+    "evaluation": {
+        "train_end_season": 2022,
+        "test_start_season": 2023,
+        "training_matchups": 115689,
+        "test_matchups": 20824
+    },
+    "baseline": {
+        "accuracy": 0.7090376488666923,
+        "confusion_matrix": [
+            [
+                6826,
+                3331
+            ],
+            [
+                2728,
+                7939
+            ]
+        ],
+        "ties": 1205
+    },
+    "logistic_regression": {
+        "accuracy": 0.7307913945447561,
+        "brier_score": 0.17944831571554304,
+        "log_loss": 0.5368904676872257,
+        "roc_auc": 0.8073514086090343,
+        "confusion_matrix": [
+            [
+                7372,
+                2785
+            ],
+            [
+                2821,
+                7846
+            ]
+        ]
+    }
+}

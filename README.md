@@ -56,7 +56,7 @@ The feature verification script independently checks the calculations.
 
 ## Models and Evaluation
 
-The project currently includes two models:
+I tried two models and tested both on the same 20,824 matchups.
 
 ### 1. Baseline Model
 
@@ -77,6 +77,17 @@ The model uses StandardScaler for feature scaling and LogisticRegression for cla
 **Results:**
 - Accuracy: 73.08%
 - Brier score: 0.1794
+- Log loss: 0.5369
+- ROC-AUC: 0.8074
+
+The logistic regression model was 2.18 percentage points more accurate than the baseline.
+
+**Confusion matrix for logistic regression:**
+
+|  | Predicted Team B | Predicted Team A |
+|---|---:|---:|
+| Actual Team B | 7,372 | 2,785 |
+| Actual Team A | 2,821 | 7,846 |
 
 ### Training and Testing Strategy
 
@@ -100,7 +111,8 @@ AI-Basketball-Game-Predictor/
 ├── notebooks/
 ├── results/
 │   ├── model_accuracy.png
-│   └── win_distribution.png
+│   ├── win_distribution.png
+│   └── model_results.json
 ├── src/
 │   ├── inspect_data.py
 │   ├── build_features.py
@@ -166,11 +178,37 @@ The project generates two visualizations:
 
 - `results/model_accuracy.png` — Compares baseline and logistic regression accuracy.
 - `results/win_distribution.png` — Shows the distribution of Team A and Team B wins in the prepared dataset.
+- `results/model_results.json` — Stores the calculated accuracy and confusion matrices.
+
+The baseline was a good starting point, but it only uses win percentage. Logistic regression used win percentage, points scored, and points allowed, and it improved accuracy.
+
+I learned that it is easy to accidentally use information from the game being predicted. I avoided this by updating team statistics only after all games from each day were processed. I also checked the feature calculations with a separate script.
+
+The 73.08% accuracy is better than the baseline, but it is not perfect. The features do not include injuries, travel, rest, roster changes, or schedule difficulty.
+
+For my own understanding:
+
+- Using final-season statistics would leak information because the model would include games that happened after the game it is predicting.
+- Logistic regression combines the three feature differences with learned weights. The result is converted by the logistic function into a probability from 0 to 1.
+- A Brier score of 0.1794 measures how close the predicted probabilities are to the actual outcomes; lower is better.
+
+Before trying Random Forest or adding features, I should set aside a chronological validation period for choosing and tuning models. I will keep the later 2023–2026 test period untouched for the final evaluation.
+
+## Remaining Work
+
+Before the final presentation, I plan to:
+
+1. Compare performance for each test season separately.
+2. Try another model, such as Random Forest.
+3. Test which of the three features is most helpful.
+4. Look at incorrect predictions to find patterns.
+5. Create a simple program that predicts a matchup when two team IDs are entered.
 
 ## Current Project Status
 
 - **Milestone 1:** Project proposal, dataset selection, and repository setup — Completed.
 - **Milestone 2:** Data preparation, feature engineering, verification, baseline model, and logistic regression — Completed.
+- **Milestone 3:** Chronological holdout evaluation, error analysis, and remaining-work plan — Completed.
 
 ## Future Work
 

@@ -1,7 +1,9 @@
 
+import json
+from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
-from pathlib import Path
 
 # Locate project folders
 PROJECT_DIR = Path(__file__).resolve().parent.parent
@@ -13,12 +15,15 @@ RESULTS_DIR.mkdir(exist_ok=True)
 # Load matchup data
 df = pd.read_csv(FEATURE_FILE)
 
-# =====================================
-# GRAPH 1: MODEL ACCURACY COMPARISON
-# =====================================
-
+# Graph 1: compare the baseline with logistic regression.
 models = ["Baseline", "Logistic Regression"]
-accuracies = [70.90, 73.08]
+with open(RESULTS_DIR / "model_results.json", "r") as file:
+    model_results = json.load(file)
+
+accuracies = [
+    model_results["baseline"]["accuracy"] * 100,
+    model_results["logistic_regression"]["accuracy"] * 100
+]
 
 plt.figure(figsize=(8, 5))
 
@@ -45,10 +50,7 @@ plt.savefig(
 
 plt.close()
 
-# =====================================
-# GRAPH 2: WIN DISTRIBUTION
-# =====================================
-
+# Graph 2: show how many prepared matchups Team A and Team B won.
 win_counts = df["TeamAWon"].value_counts().sort_index()
 
 labels = ["Team B Wins", "Team A Wins"]

@@ -47,6 +47,10 @@ for season, season_games in games.groupby("Season", sort=True):
                 actual = features.iloc[feature_index]
 
                 expected = {
+                    "Season": int(season),
+                    "DayNum": int(day),
+                    "TeamA": team_a,
+                    "TeamB": team_b,
                     "WinPctDiff": (
                         a["wins"] / a["games"]
                         - b["wins"] / b["games"]
@@ -62,11 +66,13 @@ for season, season_games in games.groupby("Season", sort=True):
                     "TeamAWon": int(winner == team_a)
                 }
 
-                # Verify team ordering
-                if team_a >= team_b:
-                    errors.append("Incorrect team ordering")
+                # Check the Team A and Team B values that were saved.
+                if actual["TeamA"] >= actual["TeamB"]:
+                    errors.append(
+                        f"Incorrect saved team ordering in row {feature_index}"
+                    )
 
-                # Verify all feature calculations
+                # Compare each stored field with the expected value.
                 for column, expected_value in expected.items():
 
                     actual_value = actual[column]

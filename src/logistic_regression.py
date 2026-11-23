@@ -1,7 +1,8 @@
 
-import pandas as pd
+import json
 from pathlib import Path
 
+import pandas as pd
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -9,10 +10,14 @@ from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
     classification_report,
-    brier_score_loss
+    brier_score_loss,
+    log_loss,
+    roc_auc_score
 )
 
-# Locate project files
+# Logistic regression is a first machine-learning model.
+# The scaler is included in a pipeline so training and testing
+# use the same feature scaling step.
 PROJECT_DIR = Path(__file__).resolve().parent.parent
 
 FEATURE_FILE = (
@@ -22,7 +27,7 @@ FEATURE_FILE = (
 # Load prepared matchup dataset
 df = pd.read_csv(FEATURE_FILE)
 
-# Define input features and prediction target
+# Choose the three features and the outcome column.
 feature_columns = [
     "WinPctDiff",
     "PointsScoredDiff",
@@ -31,7 +36,7 @@ feature_columns = [
 
 target_column = "TeamAWon"
 
-# Chronological split
+# Split the data by season instead of randomly mixing games.
 TRAIN_END_SEASON = 2022
 TEST_START_SEASON = 2023
 
@@ -44,7 +49,7 @@ y_train = train[target_column]
 X_test = test[feature_columns]
 y_test = test[target_column]
 
-# Build logistic regression pipeline
+# Standardize the inputs and fit logistic regression.
 model = Pipeline([
     ("scaler", StandardScaler()),
     ("logistic", LogisticRegression(max_iter=1000))
@@ -53,15 +58,38 @@ model = Pipeline([
 # Train model
 model.fit(X_train, y_train)
 
-# Generate predictions
+# Predict the outcome and the probability for each test matchup.
 predictions = model.predict(X_test)
-
-# Generate predicted probabilities
 probabilities = model.predict_proba(X_test)[:, 1]
 
-# Evaluate model
+# Compare predictions with the actual outcomes.
 accuracy = accuracy_score(y_test, predictions)
 brier = brier_score_loss(y_test, probabilities)
+log_loss_value = log_loss(y_test, probabilities)
+roc_auc = roc_auc_score(y_test, probabilities)
+
+# Save the same results as JSON so they can be reused by the plots.
+RESULTS_DIR = PROJECT_DIR / "results"
+RESULTS_DIR.mkdir(exist_ok=True)
+RESULTS_FILE = RESULTS_DIR / "model_results.json"
+
+existing_results = {}
+if RESULTS_FILE.exists():
+    with open(RESULTS_FILE, "r") as file:
+        existing_results = json.load(file)
+
+existing_results["logistic_regression"] = {
+    "accuracy": accuracy,
+    "brier_score": brier,
+    "log_loss": log_loss_value,
+    "roc_auc": roc_auc,
+    "confusion_matrix": confusion_matrix(
+        y_test, predictions
+    ).tolist()
+}
+
+with open(RESULTS_FILE, "w") as file:
+    json.dump(existing_results, file, indent=4)
 
 print("\n===== LOGISTIC REGRESSION RESULTS =====")
 
@@ -72,6 +100,8 @@ print(f"\nAccuracy: {accuracy:.4f}")
 print(f"Accuracy: {accuracy * 100:.2f}%")
 
 print(f"Brier Score: {brier:.4f}")
+print(f"Log Loss: {log_loss_value:.4f}")
+print(f"ROC-AUC: {roc_auc:.4f}")
 
 print("\n===== CONFUSION MATRIX =====")
 
